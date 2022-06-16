@@ -5,13 +5,20 @@ var color;
 var gStartPosx
 var gStartPosy
 var gShapeSize = 30;
+var storedPicsUrl
+var imageID = 1;
+var lastIdx
 
+
+if (!lastIdx) lastIdx = 0
+else lastIdx = gEditedMem.line.length - 1
 
 color = document.querySelector(".shapeColor").value
 
 
 gCanvas = document.getElementById('my-canvas');
 gCtx = gCanvas.getContext('2d');
+
 
 
 
@@ -24,54 +31,154 @@ function init() {
 }
 
 
-function moveDown() {
-    var lastIdx = gEditedMem.line.length - 1
-    gEditedMem.line[lastIdx].locationY += 50
+function saveMeme(stored, loaded) {
+
+    if (!loadFromStorage("imageUrl")) storedPicsUrl = []
+    else storedPicsUrl = loadFromStorage("imageUrl")
+
+
+    stored = gEditedMem.line
+    saveToStorage("mem", stored)
+
+    loaded = loadFromStorage("mem")
+    storedMem.push(loaded)
+
+    // if (!loadFromStorage("editedMem")) storedMem = []
+    // else storedMem = loadFromStorage("editedMem")
+
+
+
+
+    saveToStorage("editedMem", storedMem)
+    var imageUrl = gCanvas.toDataURL("image/jpg");
+
+    storedPicsUrl.push(imageUrl)
+    saveToStorage("imageUrl", storedPicsUrl)
+}
+
+
+
+function onSetImg(ev) {
+
+    imageID = ev
     clearCanvas()
+    rendImg()
+
+}
+
+function clearCanvas() {
+
+    gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+    gEditedMem.line.splice(0, gEditedMem.line.length)
+    rendImg();
+}
+
+
+function switchLines() {
+
+    if (lastIdx < gEditedMem.line.length - 1) {
+        lastIdx = Math.abs(lastIdx + 1)
+        console.log(lastIdx)
+    }
+    else lastIdx = 0
+
+}
+
+
+function moveDown() {
+
+    gEditedMem.line[lastIdx].locationY += 50
+    refrashCanvas()
     rendImg()
     setTimeout(render, 5)
 }
 
 function moveUp() {
-    var lastIdx = gEditedMem.line.length - 1
     gEditedMem.line[lastIdx].locationY -= 50
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 5)
 }
 
+function moveLeft() {
+
+    gEditedMem.line[lastIdx].locationX -= 50
+    refrashCanvas()
+    rendImg()
+    setTimeout(render, 5)
+}
+
+
+function moveRight() {
+
+    gEditedMem.line[lastIdx].locationX += 50
+    refrashCanvas()
+    rendImg()
+    setTimeout(render, 5)
+}
+
+
+function drawEmoji(ev) {
+
+    text = ev
+
+    var obj = {
+        imageID: imageID,
+        txt: text,
+        size: 100,
+        align: 'left',
+        color: 'red',
+        locationY: 150,
+        locationX: 150,
+    }
+
+
+    gEditedMem.line.push(obj)
+    refrashCanvas()
+    rendImg()
+    setTimeout(render, 500)
+}
+
+function fontChange() {
+    gEditedMem.line[lastIdx].font = "Arial"
+    refrashCanvas()
+    rendImg()
+    setTimeout(render, 5)
+}
+
+
 function fontIncarseSize() {
-    var lastIdx = gEditedMem.line.length - 1
+
     gEditedMem.line[lastIdx].size += 5
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 5)
 
 }
 
 function fontDecraseSize() {
-    var lastIdx = gEditedMem.line.length - 1
+
     gEditedMem.line[lastIdx].size -= 5
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 5)
 
 }
 
 function changeColor(value) {
-    var lastIdx = gEditedMem.line.length - 1
+
     gEditedMem.line[lastIdx].color = value
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 5)
 }
 
 
 function remove() {
-    var lastIdx = gEditedMem.line.length - 1
+
     gEditedMem.line.splice(lastIdx, 1);
 
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 500)
 
@@ -80,14 +187,21 @@ function remove() {
 function onSetSettings(ev) {
     ev.preventDefault()
 
+
+
+
+
     text = document.querySelector('[name=text]').value
 
     var obj = {
+        imageID: imageID,
         txt: text,
-        size: 20,
+        size: 100,
+        font: "Impact",
         align: 'left',
         color: 'red',
-        locationY: 60
+        locationY: 60,
+        locationX: 0
     }
 
     // save lines to obj
@@ -97,16 +211,18 @@ function onSetSettings(ev) {
     // console.log(gEditedMem)
 
     //render
-    clearCanvas()
+    refrashCanvas()
     rendImg()
     setTimeout(render, 500)
+    document.querySelector("input").value = ""
+
 }
 
 
 function rendImg() {
     const image = new Image(60, 45); // Using optional size for image
     image.onload = drawImageActualSize;
-    image.src = 'img/1.jpg';
+    image.src = `img/${imageID}.jpg`;
 
 }
 
@@ -115,11 +231,12 @@ function render() {
     for (i = 0; i < gEditedMem.line.length; i++) {
         var txt = gEditedMem.line[i].txt
         var locationY = gEditedMem.line[i].locationY
+        var locationX = gEditedMem.line[i].locationX
         var fontSize = gEditedMem.line[i].size
         var memColor = gEditedMem.line[i].color
-
+        var memFont = gEditedMem.line[i].font
         // if (i === 0) 
-        addLine(locationY, txt, fontSize, memColor)
+        addLine(locationY, locationX, txt, fontSize, memFont, memColor)
         // else if (i === 1) addLine(gCanvas.height, txt)
         // else if (i === 2) addLine(gCanvas.height / 2, txt)
         // else addLine(60, txt)
@@ -129,19 +246,20 @@ function render() {
 }
 
 
-function addLine(y, txt, fontSize, memColor) {
+function addLine(y, x, txt, fontSize, font, memColor) {
     gCtx.lineWidth = 2;
     gCtx.strokeStyle = "black";
     gCtx.fillStyle = memColor;
 
-    gCtx.font = `${fontSize}px Impact`
+    gCtx.font = `${fontSize}px ${font}`
 
-    var pos = gCanvas.width - (txt.length * 20)
-    var posy = y - 15
+    var posX = x
+    var posy = y
 
-    gCtx.fillText(txt, pos, posy);
-    gCtx.strokeText(txt, pos, posy);
+    gCtx.fillText(txt, posX, posy);
+    gCtx.strokeText(txt, posX, posy);
     // drawRect(y, color)
+
 }
 
 function drawRect(y, color) {
@@ -152,7 +270,7 @@ function drawRect(y, color) {
     gCtx.save()
 }
 
-function clearCanvas() {
+function refrashCanvas() {
     gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
     gShapeSize = 30;
 
@@ -167,14 +285,11 @@ function draw(ev) {
     drawRec(150, 50)
 }
 
-
-
 function renderImg(img) {
     //Draw the img on the canvas
 
     gCtx.drawImage(img, 0, 0, gCanvas.width, gCanvas.height);
 }
-
 
 function drawImageActualSize() {
     gCanvas.width = this.naturalWidth;
@@ -184,17 +299,25 @@ function drawImageActualSize() {
 }
 
 
-// function onMove(ev) {
-//     var gEndPosx = ev.offsetX
-//     var gEndPosy = ev.offsetY
-//     drawRect(gEndPosx, gEndPosy, color)
-// }
+
+function selectedIMG(i) {
+
+    imageID = i
+    clearCanvas()
+    rendImg()
+
+    document.querySelector(".main-container-gllary").style.display = "none"
+    document.querySelector(".main-container-editor").style.display = "grid"
+
+}
+
+function goToGalleryPage() {
+    window.location.href = "index.html"
+    document.querySelector(".main-container-gllary").style.display = "flex"
+    document.querySelector(".main-container-editor").style.display = "none"
 
 
-
-
-
-
+}
 
 
 

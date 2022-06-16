@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/helpers.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main-container-gallary.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
 
@@ -23,52 +28,96 @@
 <body onload="init();">
 
 
-    <header class="header-container main-nav">
+    <header class="header-container ">
 
-        <div class="header-body">
-            <img class="logo" src="/font-pics/1.png" alt="">
+        <!-- <div class="header-body"> -->
+        <img class="logo flex" src="font-pics/1.png" alt="">
+
+        <div class="nav-link">
+            <a onclick="goToGalleryPage()" class="nav-fonts" href="#">Gallery</a>
+            <a class="nav-fonts" href="mem.html">Meme</a>
         </div>
 
 
-        <a class="nav-fonts part1" href="#">Gallery</a>
-        <a class="nav-fonts part2" href="#">About</a>
-
-
-        <div>
     </header>
 
 
-    <div class="main-container-editor">
+    <div class="main-container-gllary">
+
+        <img class="resize3" src="img/1.jpg" onclick="selectedIMG(1)" alt="">
+        <img class="resize3" src="img/2.jpg" onclick="selectedIMG(2)" alt="">
+        <img class="resize3" src="img/3.jpg" onclick="selectedIMG(3)" alt="">
+        <img class="resize3" src="img/4.jpg" onclick="selectedIMG(4)" alt="">
+        <img class="resize3" src="img/5.jpg" onclick="selectedIMG(5)" alt="">
+        <img class="resize3" src="img/6.jpg" onclick="selectedIMG(6)" alt="">
+        <img class="resize3" src="img/7.jpg" onclick="selectedIMG(7)" alt="">
+        <img class="resize3" src="img/8.jpg" onclick="selectedIMG(8)" alt="">
+        <img class="resize3" src="img/9.jpg" onclick="selectedIMG(9)" alt="">
+        <img class="resize3" src="img/10.jpg" onclick="selectedIMG(10)" alt="">
+
+    </div>
+
+
+
+
+
+    <div class=" main-container-editor">
 
         <div class="left-side">
 
-            <canvas class="left-side" id="my-canvas" height="400" width="400" onclick="draw(event)"></canvas>
+            <canvas class="left-side" id="my-canvas" height="300" width="300" onclick="draw(event)"></canvas>
         </div>
 
 
         <div class="right-side">
 
-            <form class="left1 text-area" onsubmit="onSetSettings(event)">
-                <label>
-                    <input type="text" name="text" placeholder="......">
-                </label>
 
 
 
-
+            <form onsubmit="onSetSettings(event)">
+                <input class="placeholder" type="text" name="text" placeholder="......">
             </form>
-            <button class="btn fontT left2">+</button>
-            <button class="btn trash left3" onclick="remove()">-</button>
 
 
-            <input onchange="changeColor(this.value)" class="shapeColor grid-row-4 cloum-1 " type="color"
-                name="shape-Color" value="#ff0000">
 
-            <button class="btn grid-row-2 cloum-2" onclick="clearCanvas()">C</button>
-            <button class="btn grid-row-3 cloum-2 " onclick="moveDown()">↓</button>
-            <button class="btn grid-row-3 cloum-1 " onclick="moveUp()">↑</button>
-            <button class="btn grid-row-3 cloum-3 " onclick="fontIncarseSize()">A+</button>
-            <button class="btn grid-row-3 cloum-4 " onclick="fontDecraseSize()">A-</button>
+            <div class="button-line1">
+
+                <button class="btn trash  " onclick="remove()">-</button>
+
+                <button> <a href="#" class="btn" onclick="downloadImg(this)" download="my-img.jpg">D</a></button>
+
+                <button class="btn grid-row-2 cloum-2" onclick="clearCanvas()">C</button>
+                <button class="btn grid-row-3 cloum-2 " onclick="switchLines()">⇅</button>
+            </div>
+
+
+
+
+
+            <div class="button-line2">
+                <button class="btn grid-row-3 cloum-2 " onclick="moveDown()">↓</button>
+                <button class="btn grid-row-3 cloum-1 " onclick="moveUp()">↑</button>
+                <button class="btn grid-row-3 cloum-3 " onclick="moveLeft()">←</button>
+                <button class="btn grid-row-3 cloum-4 " onclick="moveRight()">→</button>
+            </div>
+
+            <div class="button-line3">
+                <button class="btn grid-row-3 cloum-3 " onclick="fontIncarseSize()">A+</button>
+                <button class="btn grid-row-3 cloum-4 " onclick="fontDecraseSize()">A-</button>
+                <button class="btn grid-row-2 cloum-1 " onclick="fontChange()">F</button>
+                <button class="btn grid-row-3 cloum-2 " onclick="drawEmoji(`😉`)">😉</button>
+                <button class="btn grid-row-2 cloum-1 " onclick="saveMeme()">S</button>
+            </div>
+
+
+            <div class="button-line4">
+                <button class="btn painter "><input oninput="changeColor(this.value)"
+                        class=" shapeColor grid-row-4 cloum-1  display-none min-widgth  " type="color"
+                        name="shape-Color" value="#ff0000"></button>
+            </div>
+
+
+
 
 
         </div>
@@ -79,7 +128,8 @@
         <div class="footer-conatiner">
 
 
-            <img class="logo-footer" src="/font-pics/1.png" alt="">
+            <img class="logo-footer" src="font-pics/1.png" alt="">
+            <p>all rights reserved 2019</p>
 
 
 
@@ -93,44 +143,12 @@
 
 
 
-
-    </div>
-    <!-- <div class="canvas-container">
-        <h3>Container</h3> -->
-
-
-
-
-
-
-
-
-
-
-    <div class="gallery-container"></div>
-    <div class="meme-generator"></div>
-
-
-
-
-
-
-
-
-
-
-    <!-- 
-    <a href="#" class="btn" onclick="downloadImg(this)" download="my-img.jpg">save Image</a> -->
-
-    </div>
-
-
-
-
-
     <!-- <img src="/img/1.jpg" alt=""> -->
     <script src="main.js"></script>
     <script src="meme-services.js"></script>
+    <script src="storage.js"></script>
+    <script src="mem-display.js"></script>
+
 </body>
 
 </html>

@@ -7,3 +7,21 @@
     align-items: center;
 
 }
+
+
+
+.display-none {
+    opacity: 0;
+
+}
+
+
+
+.min-widgth {
+    width: 60px;
+}
+
+
+/* .pad-top-1vh {
+    padding-top: 3vh;
+} */
